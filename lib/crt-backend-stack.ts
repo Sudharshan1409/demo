@@ -27,7 +27,8 @@ export class CrtBackendStack extends cdk.Stack {
 
     userPool.addClient('app-client', {
       authFlows: {
-        userPassword: true
+        userPassword: true,
+        userSrp: true,
       }
     });
   }
