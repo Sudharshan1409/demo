@@ -9,6 +9,7 @@ export class CrtBackendStack extends cdk.Stack {
     // The code that defines your stack goes here
     const userPool = new cognito.UserPool(this, 'myuserpool', {
       userPoolName: 'platformsuite-userpool',
+      selfSignUpEnabled: true,
       signInAliases: {
         email: true,
       },
