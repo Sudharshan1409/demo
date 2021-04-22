@@ -1,6 +1,6 @@
 import * as cdk from '@aws-cdk/core';
 import * as cognito from '@aws-cdk/aws-cognito';
-
+import * as s3 from '@aws-cdk/aws-s3';
 
 export class CrtBackendStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -31,5 +31,10 @@ export class CrtBackendStack extends cdk.Stack {
         userSrp: true,
       }
     });
+
+    const bucket = new s3.Bucket(this, 'platformsuite-uploads', {
+      bucketName: "platformsuite-uploads-dev",
+  });
+
   }
 }
