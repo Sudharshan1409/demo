@@ -1,6 +1,6 @@
 # Welcome to your CDK TypeScript project!
 
-[![.github/workflows/main.yml](https://github.com/Platform-Suite-CRT/CRT-backend/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/Platform-Suite-CRT/CRT-backend/actions/workflows/main.yml)
+[![Dev](https://github.com/Platform-Suite-CRT/CRT-backend/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/Platform-Suite-CRT/CRT-backend/actions/workflows/main.yml)
 
 This is a blank project for TypeScript development with CDK.
 
