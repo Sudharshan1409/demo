@@ -33,6 +33,21 @@ export class CrtBackendStack extends cdk.Stack {
       }
     });
 
+    const userPoolClient = new cognito.UserPoolClient(this, "UserPoolClient", {
+      userPool,
+      generateSecret: false, // Don't need to generate secret for web app running on browsers
+    });
+
+    const identityPool = new cognito.CfnIdentityPool(this, "platformsuite-idpool-dev", {
+      allowUnauthenticatedIdentities: false, // Don't allow unathenticated users
+      cognitoIdentityProviders: [
+        {
+          clientId: userPoolClient.userPoolClientId,
+          providerName: userPool.userPoolProviderName,
+        },
+      ],
+    });
+
     const bucket = new s3.Bucket(this, 'platformsuite-uploads', {
       bucketName: "platformsuite-uploads-dev",
       lifecycleRules: [
