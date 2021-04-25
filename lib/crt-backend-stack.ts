@@ -1,7 +1,8 @@
 import * as cdk from '@aws-cdk/core';
 import * as cognito from '@aws-cdk/aws-cognito';
 import * as s3 from '@aws-cdk/aws-s3';
-import { Duration, Expiration } from '@aws-cdk/core';
+import { Role, Effect, PolicyStatement, FederatedPrincipal } from '@aws-cdk/aws-iam';
+import { Duration } from '@aws-cdk/core';
 
 export class CrtBackendStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -46,6 +47,47 @@ export class CrtBackendStack extends cdk.Stack {
           providerName: userPool.userPoolProviderName,
         },
       ],
+    });
+
+    const unauthenticatedRole = new Role(this, 'CognitoDefaultUnauthenticatedRole', {
+        assumedBy: new FederatedPrincipal('cognito-identity.amazonaws.com', {
+            "StringEquals": { "cognito-identity.amazonaws.com:aud": identityPool.ref },
+            "ForAnyValue:StringLike": { "cognito-identity.amazonaws.com:amr": "unauthenticated" },
+        }, "sts:AssumeRoleWithWebIdentity"),
+    });
+
+    unauthenticatedRole.addToPolicy(new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: [
+            "mobileanalytics:PutEvents",
+            "cognito-sync:*",
+        ],
+        resources: ["*"],
+    }));
+
+    const authenticatedRole = new Role(this, 'CognitoDefaultAuthenticatedRole', {
+        assumedBy: new FederatedPrincipal('cognito-identity.amazonaws.com', {
+            "StringEquals": { "cognito-identity.amazonaws.com:aud": identityPool.ref },
+            "ForAnyValue:StringLike": { "cognito-identity.amazonaws.com:amr": "authenticated" },
+        }, "sts:AssumeRoleWithWebIdentity"),
+    });
+    authenticatedRole.addToPolicy(new PolicyStatement({
+        effect: Effect.ALLOW,
+        actions: [
+            "mobileanalytics:PutEvents",
+            "cognito-sync:*",
+            "cognito-identity:*",
+            "s3:PutObject"
+        ],
+        resources: ["*"],
+    }));
+
+    const defaultPolicy = new cognito.CfnIdentityPoolRoleAttachment(this, 'DefaultValid', {
+        identityPoolId: identityPool.ref,
+        roles: {
+            'unauthenticated': unauthenticatedRole.roleArn,
+            'authenticated': authenticatedRole.roleArn
+        }
     });
 
     const bucket = new s3.Bucket(this, 'platformsuite-uploads', {
