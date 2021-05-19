@@ -41,7 +41,12 @@ export class AwsCdkTaskLambda extends cdk.Stack {
       type: 'COGNITO_USER_POOLS',
     });
 
-    const listTasksResource = api.root.addResource('listTasks');
+    const listTasksResource = api.root.addResource('listTasks', {
+      defaultCorsPreflightOptions: {
+        allowOrigins: apigateway.Cors.ALL_ORIGINS,
+        allowHeaders: apigateway.Cors.DEFAULT_HEADERS
+      }
+    });
    
     listTasksResource.addMethod('GET', listTaskLambdaIntegration, {
       authorizationType: apigateway.AuthorizationType.COGNITO,
